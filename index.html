@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lottie Animation JSON Viewer</title>
+  <link rel="stylesheet" href="style.css">
+  
+</head>
+<body>
+  <h1>Lottie Animation JSON Viewer</h1>
+
+  <textarea id="json-input" placeholder="Paste Lottie JSON here or drop a JSON file"></textarea>
+
+  <label id="file-input-label" for="file-input">Upload JSON File</label>
+  <input type="file" id="file-input" accept=".json,application/json" />
+
+  <button id="render-btn">Render Animation</button>
+
+  <div id="lottie-container"></div>
+
+  <!-- Lottie web player -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.13.0/lottie.min.js"></script>
+  <script>
+    const textarea = document.getElementById('json-input');
+    const fileInput = document.getElementById('file-input');
+    const button = document.getElementById('render-btn');
+    const container = document.getElementById('lottie-container');
+    let animationInstance = null;
+
+    // Upload button file read
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        textarea.value = e.target.result;
+      };
+      reader.readAsText(file);
+    });
+
+    // Drag and drop file on textarea
+    textarea.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      textarea.style.borderColor = '#3498db';
+    });
+    textarea.addEventListener('dragleave', () => {
+      textarea.style.borderColor = '#ccd6dd';
+    });
+    textarea.addEventListener('drop', (event) => {
+      event.preventDefault();
+      textarea.style.borderColor = '#ccd6dd';
+      const files = event.dataTransfer.files;
+      if (files.length === 0) return;
+      const file = files[0];
+      if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+        alert('Please drop a valid JSON file.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        textarea.value = e.target.result;
+      };
+      reader.readAsText(file);
+    });
+
+    // Render animation on button click
+    button.addEventListener('click', () => {
+      let animationData;
+      try {
+        animationData = JSON.parse(textarea.value);
+      } catch (e) {
+        alert('Invalid JSON! Please paste or upload a valid Lottie JSON animation.');
+        return;
+      }
+      if (animationInstance) {
+        animationInstance.destroy();
+        animationInstance = null;
+      }
+      container.innerHTML = '';
+      animationInstance = lottie.loadAnimation({
+        container: container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+      });
+    });
+  </script>
+
+  <footer>
+    Developed by Anas | 
+    <a href="https://github.com/Anas-Rehberlik" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </footer>
+</body>
+</html>
